@@ -22,33 +22,38 @@ def scraper(url):
         return None
 
     soup = BeautifulSoup(html.read(), "lxml")
+
+    # archivesクラスのdivタグをすべて取得する
     linkDivs = soup.findAll("div", {"class": "archives"})
     print("linkDivs = %s\n" % linkDivs)
 
+    # divタグの中のh3タグをすべて取得する
     linkHeaders = []
     for i, linkDiv in enumerate(linkDivs):
-        print("linkDiv[%d] = %s" % (i, linkDiv))
+        # print("linkDiv[%d] = %s" % (i, linkDiv))
 
         linkHeaders.append(linkDiv.findAll("h3"))
 
     print("linkHeaders = %s\n" % linkHeaders)
 
+    # h3タグの中のaタグにあるhref属性を取得する
     addresses = []
+    headers = []
     for linkHeader in linkHeaders:
 
-        print("linkHeader = %s" % linkHeader)
-        print("linkHeader type = %s" % type(linkHeader))
+        # print("linkHeader = %s" % linkHeader)
+        # print("linkHeader type = %s" % type(linkHeader))
 
         for link in linkHeader:
             linkURL = link.find("a")
-            print(linkURL)
+            # print(linkURL)
 
-        # linkAddresses = linkHeader.find("a")
-        # print("linkAddresses = %s\n" % linkAddresses)
+            headers.append(linkURL.get_text())
+            # print(linkURL.get_text())
 
-        # if 'href' in linkAddresses.attrs:
-        #     addresses.append(linkAddresses.attrs['href'])
+            addresses.append(linkURL.attrs['href'])
 
+    print("headers = %s" % headers)
     print("addresses = %s\n" % addresses)
 
     # for link in linkAddresses:
@@ -115,7 +120,7 @@ def getYomi(url):
     while cleanTexts.count("") > 0:
         cleanTexts.remove("")
 
-    print("cleanText= %s" % cleanTexts)
+    # print("cleanText= %s" % cleanTexts)
     cleanText = cleanTexts[0]
     cleanText = cleanText.replace(YOMIKATA1, "")
     cleanText = cleanText.replace(YOMIKATA2, "")
