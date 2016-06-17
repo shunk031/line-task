@@ -7,10 +7,14 @@ from bs4 import BeautifulSoup
 import csv
 import time
 import sys
+import re
 
 YOMIKATA1 = "【読み方】："
 YOMIKATA2 = "【読み方】；"
 YOMIKATA3 = "【読み方】"
+
+YOMIKATA = "^.*読み方.."
+repatter = re.compile(YOMIKATA)
 
 
 def scraper(url):
@@ -25,7 +29,7 @@ def scraper(url):
 
     # archivesクラスのdivタグをすべて取得する
     linkDivs = soup.findAll("div", {"class": "archives"})
-    print("linkDivs = %s\n" % linkDivs)
+    # print("linkDivs = %s\n" % linkDivs)
 
     # divタグの中のh3タグをすべて取得する
     linkHeaders = []
@@ -33,8 +37,7 @@ def scraper(url):
         # print("linkDiv[%d] = %s" % (i, linkDiv))
 
         linkHeaders.append(linkDiv.findAll("h3"))
-
-    print("linkHeaders = %s\n" % linkHeaders)
+    # print("linkHeaders = %s\n" % linkHeaders)
 
     # h3タグの中のaタグにあるhref属性を取得する
     addresses = []
@@ -53,26 +56,11 @@ def scraper(url):
 
             addresses.append(linkURL.attrs['href'])
 
+    # 取得した新語のリストを表示
     print("headers = %s" % headers)
-    print("addresses = %s\n" % addresses)
+    # print("addresses = %s\n" % addresses)
 
-    # for link in linkAddresses:
-    #     print("header text= %s" % link.get_text())
-
-    # print(linkHeaders)
-
-    # headers = [header.get_text() for header in linkHeaders]
-    # print(headers)
-
-    # addresses = []
-    # for link in linkHeaders:
-
-    #     linkAdress = link.find("a")
-    #     # print(linkAdress)
-
-    #     if 'href' in linkAdress.attrs:
-    #         addresses.append(linkAdress.attrs['href'])
-
+    # 新語に対する読みを
     yomi = []
     for address in addresses:
         yomi.append(getYomi(address))
@@ -117,16 +105,29 @@ def getYomi(url):
     cleanTexts = "\n".join(yomi.strings)
     cleanTexts = cleanTexts.split('\n')
 
+    # print("before clean= %s" % cleanTexts)
+
     while cleanTexts.count("") > 0:
         cleanTexts.remove("")
 
-    # print("cleanText= %s" % cleanTexts)
-    cleanText = cleanTexts[0]
-    cleanText = cleanText.replace(YOMIKATA1, "")
-    cleanText = cleanText.replace(YOMIKATA2, "")
-    cleanText = cleanText.replace(YOMIKATA3, "")
+    # print("cleanTexts= %s\n" % cleanTexts)
 
-    return cleanText
+    # 取得したパラグラフから先頭の要素=読み方が含まれている要素を取り出す
+    # もし配列長が0ならNoneを返す
+    if not(len(cleanTexts) == 0):
+
+        isMatch = repatter.match(cleanTexts[0])
+
+        if isMatch:
+            cleanText = cleanTexts[0]
+            # print("cleanText = %s\n" % cleanText)
+            cleanText = repatter.sub("", cleanText)
+            return cleanText
+
+        else:
+            return None
+    else:
+        return None
 
 
 def saveData(headers, yomis):
