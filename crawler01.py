@@ -9,11 +9,7 @@ import time
 import sys
 import re
 
-YOMIKATA1 = "【読み方】："
-YOMIKATA2 = "【読み方】；"
-YOMIKATA3 = "【読み方】"
-
-YOMIKATA = "^.*読み方.."
+YOMIKATA = "^.*読み方.[：；]*"
 repatter = re.compile(YOMIKATA)
 
 
@@ -143,37 +139,74 @@ def saveData(headers, yomis):
         f.close()
 
 
+def getCategoryURL(url):
+
+    html = urlopen(url)
+    soup = BeautifulSoup(html.read(), "lxml")
+
+    ulTags = soup.find("ul", {"class": "cat1"})
+    liTags = ulTags.findAll("li")
+
+    addresses = []
+    for liTag in liTags:
+        aTag = liTag.find("a")
+        addresses.append(aTag.attrs['href'])
+
+    return addresses
+
+
 def main():
 
-    argvs = sys.argv
-    argc = len(argvs)
+    # argvs = sys.argv
+    # argc = len(argvs)
 
-    if argc == 2:
-        targetUrl = argvs[1]
+    # if argc == 2:
+    #     targetUrl = argvs[1]
+
+    #     i = 1
+    #     page = "/page"
+    #     newTargetUrl = targetUrl
+
+    #     while True:
+    #         print(newTargetUrl)
+    #         isURLError = scraper(newTargetUrl)
+    #         # targetUrl = getNextLink(targetUrl)
+
+    #         i = i + 1
+    #         newPage = page + str(i)
+    #         newTargetUrl = targetUrl + newPage
+
+    #         # if targetUrl is None:
+    #         #     break
+    #         if isURLError is None:
+    #             break
+
+    #     print("Finish")
+
+    # else:
+    #     print("Can't find target URL. Please input target URL.")
+
+    url = "http://netyougo.com/category"
+
+    targetURLs = getCategoryURL(url)
+    for targetURL in targetURLs:
 
         i = 1
         page = "/page"
-        newTargetUrl = targetUrl
+        newTargetURL = targetURL
 
         while True:
-            print(newTargetUrl)
-            isURLError = scraper(newTargetUrl)
-            # targetUrl = getNextLink(targetUrl)
+            print(newTargetURL)
+            isURLError = scraper(newTargetURL)
 
             i = i + 1
             newPage = page + str(i)
-            newTargetUrl = targetUrl + newPage
+            newTargetURL = targetURL + newPage
 
-            # if targetUrl is None:
-            #     break
             if isURLError is None:
                 break
 
-        print("Finish")
-
-    else:
-        print("Can't find target URL. Please input target URL.")
-
+    print("Finish")
 
 if __name__ == '__main__':
     main()
