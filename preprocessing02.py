@@ -37,12 +37,16 @@ def get_new_word(text):
                 next_feature_list = new_node.feature.split(',')
 
                 if next_feature_list[0] == '名詞':
-                    new_word.append(prev_word + new_node.surface)
-                    new_yomi.append(prev_yomi + next_feature_list[7])
 
-                    # print("new word = %s" % new_word)
+                    next_word = new_node.surface
+                    next_yomi = next_feature_list[7]
+
+                    new_word.append(prev_word + next_word)
+                    new_yomi.append(prev_yomi + next_yomi)
+
             except IndexError as e:
                 # print(e)
+                # new_yomi.append('')
                 pass
 
         node = node.next
@@ -75,16 +79,8 @@ def main():
             # print("%s" % row[2])
             results, yomis = get_new_word(tweet)
 
-            # print("result = %s, yomi = %s" % (result for result in results,
-            # yomi for yomi in yomis))
-
-            # print("result = %s, yomi = %s" % (results, yomis))
-
             new_word.extend(results)
             new_yomi.extend(yomis)
-
-    print("new_word = %s" % new_word)
-    print("new_yomi = %s" % new_yomi)
 
     with open('data/newword/wasara-newword.csv', 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
