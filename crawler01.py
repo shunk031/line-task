@@ -25,7 +25,6 @@ def scraper(url):
 
     # archivesクラスのdivタグをすべて取得する
     linkDivs = soup.findAll("div", {"class": "archives"})
-    # print("linkDivs = %s\n" % linkDivs)
 
     # divタグの中のh3タグをすべて取得する
     linkHeaders = []
@@ -33,28 +32,21 @@ def scraper(url):
         # print("linkDiv[%d] = %s" % (i, linkDiv))
 
         linkHeaders.append(linkDiv.findAll("h3"))
-    # print("linkHeaders = %s\n" % linkHeaders)
 
     # h3タグの中のaタグにあるhref属性を取得する
     addresses = []
     headers = []
     for linkHeader in linkHeaders:
 
-        # print("linkHeader = %s" % linkHeader)
-        # print("linkHeader type = %s" % type(linkHeader))
-
         for link in linkHeader:
             linkURL = link.find("a")
-            # print(linkURL)
 
             headers.append(linkURL.get_text())
-            # print(linkURL.get_text())
 
             addresses.append(linkURL.attrs['href'])
 
     # 取得した新語のリストを表示
     print("headers = %s" % headers)
-    # print("addresses = %s\n" % addresses)
 
     # 新語に対する読みを
     yomi = []
@@ -76,11 +68,6 @@ def getNextLink(url):
     nextLink = soup.find("div", {"class": "pagination"}).find(
         "a", text="次のページ ›")
 
-    # if ('href' in nextLink.attrs) or (nextLink is not None):
-    #     nextLinkUrl = nextLink.attrs['href']
-    #     return nextLinkUrl
-    # else:
-    #     return None
     if nextLink is not None:
         if 'href' in nextLink.attrs:
             nextLinkUrl = nextLink.attrs['href']
@@ -101,12 +88,8 @@ def getYomi(url):
     cleanTexts = "\n".join(yomi.strings)
     cleanTexts = cleanTexts.split('\n')
 
-    # print("before clean= %s" % cleanTexts)
-
     while cleanTexts.count("") > 0:
         cleanTexts.remove("")
-
-    # print("cleanTexts= %s\n" % cleanTexts)
 
     # 取得したパラグラフから先頭の要素=読み方が含まれている要素を取り出す
     # もし配列長が0ならNoneを返す
@@ -116,7 +99,6 @@ def getYomi(url):
 
         if isMatch:
             cleanText = cleanTexts[0]
-            # print("cleanText = %s\n" % cleanText)
             cleanText = repatter.sub("", cleanText)
             return cleanText
 
@@ -156,35 +138,6 @@ def getCategoryURL(url):
 
 
 def main():
-
-    # argvs = sys.argv
-    # argc = len(argvs)
-
-    # if argc == 2:
-    #     targetUrl = argvs[1]
-
-    #     i = 1
-    #     page = "/page"
-    #     newTargetUrl = targetUrl
-
-    #     while True:
-    #         print(newTargetUrl)
-    #         isURLError = scraper(newTargetUrl)
-    #         # targetUrl = getNextLink(targetUrl)
-
-    #         i = i + 1
-    #         newPage = page + str(i)
-    #         newTargetUrl = targetUrl + newPage
-
-    #         # if targetUrl is None:
-    #         #     break
-    #         if isURLError is None:
-    #             break
-
-    #     print("Finish")
-
-    # else:
-    #     print("Can't find target URL. Please input target URL.")
 
     url = "http://netyougo.com/category"
 
