@@ -5,6 +5,7 @@ import csv
 import codecs
 import re
 import time
+import sys
 
 reply_pattern = re.compile("@.*?[ 　]")
 url_pattern = re.compile('http[s]?[\S]*')
@@ -66,27 +67,36 @@ def remove_url_string(text):
 
 def main():
 
-    new_word = []
-    new_yomi = []
+    argvs = sys.argv
+    argc = len(argvs)
 
-    with codecs.open('data/wasara-output.csv', 'r', 'utf-8', 'ignore') as f:
-        reader = csv.reader(f)
-        header = next(reader)
+    if argc == 2:
+        user_name = argvs[1]
 
-        for row in reader:
-            tweet = remove_reply_string(row[2])
-            tweet = remove_url_string(tweet)
-            # print("%s" % row[2])
-            results, yomis = get_new_word(tweet)
+        new_word = []
+        new_yomi = []
 
-            new_word.extend(results)
-            new_yomi.extend(yomis)
+        read_file = "data/" + user_name + '-output.csv'
 
-    with open('data/newword/wasara-newword.csv', 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
+        with codecs.open(read_file, 'r', 'utf-8', 'ignore') as f:
+            reader = csv.reader(f)
+            header = next(reader)
 
-        for word, yomi in zip(new_word, new_yomi):
-            writer.writerow((word, yomi))
+            for row in reader:
+                tweet = remove_reply_string(row[0])
+                tweet = remove_url_string(tweet)
+                # print("%s" % row[2])
+                results, yomis = get_new_word(tweet)
+
+                new_word.extend(results)
+                new_yomi.extend(yomis)
+
+        write_file = "data/newword/" + user_name + '-newword.csv'
+        with open(write_file, 'w', newline='', encoding='utf - 8') as f:
+            writer = csv.writer(f)
+
+            for word, yomi in zip(new_word, new_yomi):
+                writer.writerow((word, yomi))
 
 
 if __name__ == '__main__':
