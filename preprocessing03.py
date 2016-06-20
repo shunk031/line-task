@@ -34,7 +34,7 @@ def main():
                           (new_word.index(word), word, cnt))
                     indexes.append(int(new_word.index(word)))
 
-        write_file = 'data/newword/' + user_name + '-newword-f.csv'
+        write_file = 'data/newword/sortout/' + user_name + '-newword-f.csv'
 
         with open(write_file, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)

@@ -76,8 +76,9 @@ def main():
         new_word = []
         new_yomi = []
 
-        read_file = "data/" + user_name + '-output.csv'
+        print("now %s" % user_name)
 
+        read_file = "data/" + user_name + '-output.csv'
         with codecs.open(read_file, 'r', 'utf-8', 'ignore') as f:
             reader = csv.reader(f)
             header = next(reader)
