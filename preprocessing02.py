@@ -1,68 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import MeCab
-import csv
-import codecs
-import re
-import time
 import sys
-
-reply_pattern = re.compile("@.*?[ 　]")
-url_pattern = re.compile('http[s]?[\S]*')
-
-
-def get_new_word(text):
-    mt = MeCab.Tagger("-Ochasen -d /usr/lib/mecab/dic/mecab-ipadic-neologd")
-
-    mt.parse('')
-    node = mt.parseToNode(text)
-
-    new_word = []
-    new_yomi = []
-
-    while node:
-        # print(node.surface)
-        # print(node.feature)
-
-        feature_list = node.feature.split(',')
-        # print(feature_list)
-
-        if feature_list[0] == '名詞':
-            try:
-                prev_word = node.surface
-                # print("feature_list = %s" % feature_list)
-                prev_yomi = feature_list[7]
-
-                new_node = node.next
-
-                next_feature_list = new_node.feature.split(',')
-
-                if next_feature_list[0] == '名詞':
-
-                    next_word = new_node.surface
-                    next_yomi = next_feature_list[7]
-
-                    new_word.append(prev_word + next_word)
-                    new_yomi.append(prev_yomi + next_yomi)
-
-            except IndexError as e:
-                # print(e)
-                # new_yomi.append('')
-                pass
-
-        node = node.next
-
-    return new_word, new_yomi
-
-
-def remove_reply_string(text):
-
-    return reply_pattern.sub("", text)
-
-
-def remove_url_string(text):
-
-    return url_pattern.sub("", text)
+import csv
+from collections import Counter
 
 
 def main():
@@ -72,32 +12,36 @@ def main():
 
     if argc == 2:
         user_name = argvs[1]
+        read_file = 'data/newword/' + user_name + '-newword.csv'
 
-        new_word = []
-        new_yomi = []
+        with open(read_file, 'r', encoding='utf-8') as f:
 
-        print("now %s" % user_name)
-
-        read_file = "data/" + user_name + '-output.csv'
-        with codecs.open(read_file, 'r', 'utf-8', 'ignore') as f:
             reader = csv.reader(f)
-            header = next(reader)
+
+            new_word = []
+            new_yomi = []
 
             for row in reader:
-                tweet = remove_reply_string(row[0])
-                tweet = remove_url_string(tweet)
-                # print("%s" % row[2])
-                results, yomis = get_new_word(tweet)
+                new_word.append(row[0])
+                new_yomi.append(row[1])
 
-                new_word.extend(results)
-                new_yomi.extend(yomis)
+            indexes = []
+            counter = Counter(new_word)
 
-        write_file = "data/newword/" + user_name + '-newword.csv'
-        with open(write_file, 'w', newline='', encoding='utf - 8') as f:
+            for word, cnt in counter.most_common():
+                if cnt >= 2:
+                    print("index= %d, %s, %d" %
+                          (new_word.index(word), word, cnt))
+                    indexes.append(int(new_word.index(word)))
+
+        write_file = 'data/newword/sortout/' + user_name + '-newword-f.csv'
+
+        with open(write_file, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
 
-            for word, yomi in zip(new_word, new_yomi):
-                writer.writerow((word, yomi))
+            for index in indexes:
+                # print("now index = %d" % index)
+                writer.writerow((new_word[index], new_yomi[index]))
 
 
 if __name__ == '__main__':
