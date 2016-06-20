@@ -90,5 +90,5 @@ user_list=(
 )
 
 for user in ${user_list[@]}; do
-    python preprocessing01.py $user
+    python preprocessing02.py $user
 done
